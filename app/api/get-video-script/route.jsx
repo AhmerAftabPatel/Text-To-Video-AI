@@ -1,6 +1,6 @@
 import { chatSession } from "@/configs/AiModel";
 import { NextResponse } from "next/server";
-
+//script generation throigh gemini aI
 export async function POST(req){
     try{
         const {prompt}=await req.json()
