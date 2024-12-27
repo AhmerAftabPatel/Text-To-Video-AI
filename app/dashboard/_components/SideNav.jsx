@@ -15,7 +15,7 @@ function SideNav() {
         {
             id:2,
             name:'Create New',
-            path:'/dashboard/create-new',
+            path:'/dashboard/create-cliply',
             icon:FileVideo
         },
         {

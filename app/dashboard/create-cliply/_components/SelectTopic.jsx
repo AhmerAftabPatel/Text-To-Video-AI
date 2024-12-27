@@ -16,9 +16,9 @@ function SelectTopic({onUserSelect}) {
 
     return (
     <div>
-        <h2 className='font-bold text-2xl text-primary'>Content</h2>
-        <p className='text-gray-500'>What is the topic of your video?</p>
-        <Select onValueChange={(value)=>{
+        {/* <h2 className='font-bold text-2xl text-primary'>Content</h2> */}
+        <p className='text-white'>What is the topic of your video?</p>
+        {/* <Select onValueChange={(value)=>{
             setSelectedOption(value)
             value!='Custom Prompt'&&onUserSelect('topic',value)
             }}>
@@ -31,12 +31,12 @@ function SelectTopic({onUserSelect}) {
                 ))}
                
             </SelectContent>
-        </Select>
+        </Select> */}
 
         {selectedOption=='Custom Prompt'&&
-            <Textarea className="mt-3 "
+            <Textarea className="mt-3 text-white"
             onChange={(e)=>onUserSelect('topic',e.target.value)}
-            placeholder='Write prompt on which you want to generate video'/>
+            placeholder='Create a educational learning content on learning blockchain technology'/>
         }
 
     </div>

@@ -5,8 +5,8 @@ import React from 'react'
 function EmptyState() {
   return (
     <div className='p-5 py-24 flex items-center flex-col mt-10 border-2 border-dashed'>
-        <h2>You don't have any short video created</h2>
-        <Link href={'/dashboard/create-new'}>
+        <h2 className='text-white'>You don't have any short video created</h2>
+        <Link href={'/dashboard/create-cliply'}>
          <Button>Create New Short Video</Button>
         </Link>
     </div>

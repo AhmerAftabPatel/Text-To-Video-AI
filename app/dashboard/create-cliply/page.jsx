@@ -14,21 +14,28 @@ import { useUser } from '@clerk/nextjs';
 import PlayerDialog from '../_components/PlayerDialog';
 import { useRouter } from 'next/navigation';
 import { UserDetailContext } from '@/app/_context/UserDetailContext';
-import { eq } from 'drizzle-orm';
+import { desc, eq } from 'drizzle-orm';
 import { toast } from 'sonner';
+import EmptyState from '../_components/EmptyState';
+import VideoList from '../_components/VideoList';
 
 function CreateNew() {
-  const [formData, setFormData] = useState([]);
+  const [formData, setFormData] = useState({
+    imageStyle: 'Educational',
+    duration: '15 Seconds'
+
+  });
   const [loading, setLoading] = useState(false);
   const [videoScript, setVideoScript] = useState();
   const [audioFileUrl, setAudioFileUrl] = useState();
   const [captions, setCaptions] = useState();
   const [imageList, setImageList] = useState();
-  const [playVideo,setPlayVideo]=useState(false);
-  const [videoId,setVideoid]=useState();
-  const {videoData,setVideoData}=useContext(VideoDataContext);
-  const {userDetail,setUserDetail}=useContext(UserDetailContext);
-  const {user}=useUser();
+  const [playVideo, setPlayVideo] = useState(false);
+  const [videoId, setVideoid] = useState();
+  const { videoData, setVideoData } = useContext(VideoDataContext);
+  const { userDetail, setUserDetail } = useContext(UserDetailContext);
+  const [videoList, setVideoList] = useState([]);
+  const { user } = useUser();
 
   const onHandleInputChange = (fieldName, fieldValue) => {
     console.log(fieldName, fieldValue)
@@ -38,13 +45,33 @@ function CreateNew() {
     }))
   }
 
+  useEffect(() => {
+    user && GetVideoList();
+  }, [user])
+
+  useEffect(() => {
+    setVideoData(null);// Make Sure it will Null before creating the new Video
+  }, [])
+  /**
+   * Used to Get Users Video
+   */
+  const GetVideoList = async () => {
+    const result = await db.select().from(VideoData)
+      .where(eq(VideoData?.createdBy, user?.primaryEmailAddress?.emailAddress))
+      .orderBy(desc(VideoData.id))
+      ;
+
+    console.log(result);
+    setVideoList(result);
+  }
+
   const onCreateClickHandler = () => {
     console.log(userDetail)
-    if(userDetail?.credits<=0) {
+    if (userDetail?.credits <= 0) {
       toast("You don't have enough Credits")
       return;
     }
-    if(!formData.topic || !formData.imageStyle || !formData.duration) {
+    if (!formData.topic || !formData.imageStyle || !formData.duration) {
       toast("Please fill in all fields")
       return;
     }
@@ -62,9 +89,9 @@ function CreateNew() {
         prompt: prompt
       });
       if (resp.data.result) {
-        setVideoData(prev=>({
+        setVideoData(prev => ({
           ...prev,
-          'videoScript':resp.data.result
+          'videoScript': resp.data.result
         }))
         setVideoScript(resp.data.result);
         await GenerateAudioFile(resp.data.result)
@@ -90,28 +117,28 @@ function CreateNew() {
         text: script,
         id: id
       });
-      setVideoData(prev=>({
+      setVideoData(prev => ({
         ...prev,
-        'audioFileUrl':resp.data.result
+        'audioFileUrl': resp.data.result
       }))
       setAudioFileUrl(resp.data.result);
-      resp.data.result && await GenerateAudioCaption(resp.data.result,videoScriptData)
+      resp.data.result && await GenerateAudioCaption(resp.data.result, videoScriptData)
     } catch (error) {
       toast('Error generating audio')
       setLoading(false)
     }
   }
 
-  const GenerateAudioCaption = async (fileUrl,videoScriptData) => {
+  const GenerateAudioCaption = async (fileUrl, videoScriptData) => {
     try {
       setLoading(true);
       const resp = await axios.post('/api/generate-caption', {
         audioFileUrl: fileUrl
       })
       setCaptions(resp?.data?.result);
-      setVideoData(prev=>({
+      setVideoData(prev => ({
         ...prev,
-        'captions':resp.data.result
+        'captions': resp.data.result
       }))
       resp.data.result && await GenerateImage(videoScriptData);
     } catch (error) {
@@ -120,19 +147,19 @@ function CreateNew() {
     }
   }
 
-  const GenerateImage = async(videoScriptData) => {
+  const GenerateImage = async (videoScriptData) => {
     let images = [];
     try {
-      for(const element of videoScriptData) {
-        const resp = await axios.post('/api/generate-image',{
-          prompt:element.imagePrompt
+      for (const element of videoScriptData) {
+        const resp = await axios.post('/api/generate-image', {
+          prompt: element.imagePrompt
         });
         console.log(resp.data.result);
         images.push(resp.data.result);
       }
-      setVideoData(prev=>({
+      setVideoData(prev => ({
         ...prev,
-        'imageList':images
+        'imageList': images
       }))
       setImageList(images)
       setLoading(false);
@@ -142,22 +169,22 @@ function CreateNew() {
     }
   }
 
-  useEffect(()=>{
-    if(videoData&&Object?.keys(videoData)?.length==4) {
+  useEffect(() => {
+    if (videoData && Object?.keys(videoData)?.length == 4) {
       SaveVideoData(videoData);
     }
-  },[videoData])
+  }, [videoData])
 
-  const SaveVideoData=async(videoData)=>{
+  const SaveVideoData = async (videoData) => {
     try {
       setLoading(true)
-      const result=await db.insert(VideoData).values({
-        script:videoData?.videoScript,
-        audioFileUrl:videoData?.audioFileUrl??'',
-        captions:videoData?.captions??'',
-        imageList:videoData?.imageList??[],
-        createdBy:user?.primaryEmailAddress?.emailAddress
-      }).returning({id:VideoData?.id})
+      const result = await db.insert(VideoData).values({
+        script: videoData?.videoScript,
+        audioFileUrl: videoData?.audioFileUrl ?? '',
+        captions: videoData?.captions ?? '',
+        imageList: videoData?.imageList ?? [],
+        createdBy: user?.primaryEmailAddress?.emailAddress
+      }).returning({ id: VideoData?.id })
 
       await UpdateUserCredits();
       setVideoid(result[0].id);
@@ -169,14 +196,14 @@ function CreateNew() {
     }
   }
 
-  const UpdateUserCredits=async()=>{
+  const UpdateUserCredits = async () => {
     try {
-      const result=await db.update(Users).set({
-        credits:userDetail?.credits-10
-      }).where(eq(Users?.email,user?.primaryEmailAddress?.emailAddress));
-      setUserDetail(prev=>({
+      const result = await db.update(Users).set({
+        credits: userDetail?.credits - 10
+      }).where(eq(Users?.email, user?.primaryEmailAddress?.emailAddress));
+      setUserDetail(prev => ({
         ...prev,
-        "credits":userDetail?.credits-10
+        "credits": userDetail?.credits - 10
       }))
     } catch (error) {
       toast('Error updating credits')
@@ -186,15 +213,31 @@ function CreateNew() {
   return (
     <div className='max-w-4xl mx-auto'>
       <div className='text-center mb-8'>
-        <h1 className='text-4xl font-bold text-primary mb-2'>Create New Video</h1>
-        <p className='text-gray-600'>Transform your ideas into engaging videos</p>
+        <h1 className='text-4xl font-bold text-white mb-2'>Transform your ideas into engaging short videos</h1>
+        {/* <p className='text-gray-600'>Transform your ideas into engaging videos</p> */}
       </div>
 
-      <div className='bg-white rounded-xl shadow-lg p-8'>
+      <div className=''>
+        <div className='flex mb-4 gap-4'>
+          <Button
+            className="font-semibold"
+            onClick={onCreateClickHandler}
+            disabled={true}
+          >
+            Create Course
+          </Button>
+          <Button
+            className="font-semibold"
+            onClick={onCreateClickHandler}
+            disabled={loading || !formData.topic || !formData.imageStyle || !formData.duration}
+          >
+            Create Campaign
+          </Button>
+        </div>
         <div className='space-y-6'>
           {/* Progress indicator */}
-          <div className='flex justify-between mb-8'>
-            <div className='flex items-center'>
+          {/* <div className='flex justify-between mb-8'> */}
+          {/* <div className='flex items-center'>
               <div className='w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center'>1</div>
               <div className='ml-2'>Content</div>
             </div>
@@ -216,28 +259,28 @@ function CreateNew() {
               <div className='w-8 h-8 rounded-full bg-gray-200 text-gray-600 flex items-center justify-center'>3</div>
               <div className='ml-2'>Duration</div>
             </div>
-          </div>
+          </div> */}
 
-          <div className='bg-gray-50 rounded-lg p-6 mb-6'>
+          <div className='rounded-lg'>
             <SelectTopic onUserSelect={onHandleInputChange} />
           </div>
 
-          <div className='bg-gray-50 rounded-lg p-6 mb-6'>
+          {/* <div className='bg-gray-50 rounded-lg p-6 mb-6'>
             <SelectStyle onUserSelect={onHandleInputChange} />
           </div>
 
           <div className='bg-gray-50 rounded-lg p-6 mb-6'>
             <SelectDuration onUserSelect={onHandleInputChange} />
-          </div>
+          </div> */}
 
           <div className='flex items-center justify-between mt-8'>
-            <div className='text-sm text-gray-600'>
+            <div className='text-sm text-white'>
               Credits required: 10
-              <br/>
+              <br />
               Your credits: {userDetail?.credits}
             </div>
-            <Button 
-              className="px-8 py-6 text-lg font-semibold" 
+            <Button
+              className="font-semibold"
               onClick={onCreateClickHandler}
               disabled={loading || !formData.topic || !formData.imageStyle || !formData.duration}
             >
@@ -245,6 +288,17 @@ function CreateNew() {
             </Button>
           </div>
         </div>
+      </div>
+      <div>
+        {/* Empty State */}
+        {videoList?.length == 0 && <div className='mt-8'>
+          <EmptyState />
+        </div>}
+
+        {/* Video Grid */}
+        {videoList?.length > 0 && <div className='mt-6'>
+          <VideoList videoList={videoList} />
+        </div>}
       </div>
 
       {loading && (

@@ -18,7 +18,7 @@ function CustomLoading({loading}) {
     <AlertDialog open={loading}>
     <AlertDialogContent className="bg-white">
         <div className='bg-white flex flex-col items-center my-10 justify-center'>
-            <Image src={'/progress.gif'} width={100} height={100}/>
+            <Image src={'/loading-progress-bar.gif'} width={100} height={100}/>
             <h2>Generating your video... Do not Refresh</h2>
         </div>
     </AlertDialogContent>

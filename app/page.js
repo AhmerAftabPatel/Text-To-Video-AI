@@ -11,11 +11,11 @@ export default function Home() {
       <div className='p-4 md:p-6 flex items-center fixed w-full bg-background/80 backdrop-blur-lg justify-between z-50 border-b'>
         <div className='flex gap-3 items-center'>
           {/* <Image src={'/logo.svg'} width={35} height={35} alt="Logo"/> */}
-          <h2 className='font-bold text-xl md:text-2xl bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent'>Text-To-Video AI</h2>
+          <h2 className='font-bold text-xl md:text-2xl bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent'>Cliply AI</h2>
         </div>
         <div className='flex gap-4 items-center'>
           <Link href={'/dashboard'}>
-            <Button variant="ghost">Dashboard</Button>
+            <Button variant="ghost">Login</Button>
           </Link>
           <UserButton afterSignOutUrl="/"/>
         </div>
@@ -25,8 +25,8 @@ export default function Home() {
       <section className="pt-24 md:pt-32 px-4">
         <div className="max-w-6xl mx-auto text-center">
           <div className="inline-flex items-center px-4 py-1.5 mb-6 border rounded-full text-sm font-medium bg-muted">
-            <span className="w-2 h-2 rounded-full bg-primary mr-2"></span>
-            AI-Powered Video Creation
+            {/* <span className="w-2 h-2 rounded-full bg-primary mr-2"></span> */}
+            Made with ❤️ by &nbsp; <a href="https://github.com/ahmeraftab">Ahmer Aftab</a>
           </div>
           
           <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight mb-6">

@@ -47,10 +47,10 @@ function Dashboard() {
             <div className='flex items-center space-x-2 text-muted-foreground'>
               <span>Total Videos: {videoList?.length || 0}</span>
             </div>
-            <Link href={'/dashboard/create-new'}>
+            <Link href={'/dashboard/create-cliply'}>
               <Button className="bg-primary hover:bg-primary/90 text-white px-6">
-                <span className="mr-2">+</span>
-                Create New Video
+                {/* <span className="mr-2">+</span> */}
+                Create
               </Button>
             </Link>
           </div>

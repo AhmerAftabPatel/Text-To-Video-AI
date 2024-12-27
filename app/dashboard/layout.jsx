@@ -34,7 +34,9 @@ function DashboardLayout({ children }) {
           <div>
             <Header />
             <div className='p-10 pt-24'>
+              <div className='bg-blue-500 rounded-xl py-10' style={{background : "radial-gradient(at 68.5155% 112.605%, rgb(105, 48, 239), rgb(69, 6, 159))"}}>
               {children}
+              </div>
             </div>
           </div>
 

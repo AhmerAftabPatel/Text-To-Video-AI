@@ -11,7 +11,7 @@ function VideoList({ videoList }) {
         <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6'>
             {videoList?.map((video, index) => (
                 <div key={video.id} 
-                    className='group relative bg-card rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300
+                    className='group relative bg-transparent rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300
                     hover:scale-[1.02] cursor-pointer'
                     onClick={() => { setOpenPlayerDialog(Date.now()); setVideoId(video?.id) }}
                 >

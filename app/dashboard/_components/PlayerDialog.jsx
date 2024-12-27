@@ -34,13 +34,16 @@ function PlayerDialog({ playVideo, videoId }) {
         console.log(result);
         setVideoData(result[0]);
     }
+    console.log(videoData)
 
     return (
-        <Dialog open={openDialog}>
+        <Dialog open={openDialog} onOpenChange={setOpenDialog}>
             <DialogContent className="bg-white flex flex-col items-center">
-                <DialogHeader>
-                    <DialogTitle className="text-3xl font-bold my-5">Your video is ready</DialogTitle>
+                {/* <DialogHeader> */}
+                    {/* <DialogTitle className="text-3xl font-bold my-5">Your video is ready</DialogTitle> */}
                     <DialogDescription>
+                        <div className='flex gap-4'>
+                            <div>
                         <Player
                             component={RemotionVideo}
                             durationInFrames={Number(durationInFrame.toFixed(0))+100} // Added +100 to add extra buffer time
@@ -53,15 +56,35 @@ function PlayerDialog({ playVideo, videoId }) {
                                 setDurationInFrame:(frameValue)=>setDurationInFrame(frameValue)
                             }}
                             
-                        />
-                        <div className='flex gap-10 mt-10'>
-                            <Button variant="ghost" onClick={()=>{router.replace('/dashboard');setOpenDialog(false)}}>
-                                Close</Button>
-                            <Button>Export</Button>
-
+                        /></div>
+                        <div>
+                            {videoData?.script.map((item, index) => {
+                                return (
+                                    <div key={index}>
+                                        <h2 className='font-bold text-lg'>Scene {index + 1}</h2>
+                                        <p>{item.ContentText}</p>
+                                    </div>
+                                )
+                            })}
                         </div>
+                        </div>
+                        {/* <div className='flex items-center justify-center'>
+                            <Button variant="ghost" onClick={()=>{setOpenDialog(false)}}>
+                                Close</Button>
+
+                        </div> */}
                     </DialogDescription>
-                </DialogHeader>
+                {/* </DialogHeader> */}
+                <div classname="flex gap-4 justify-center items-center mt-2 w-full">
+                            <Button>
+                                Share
+                            </Button>
+                            &nbsp;
+                            &nbsp;
+                            <Button>
+                                Download
+                            </Button>
+                        </div>
             </DialogContent>
         </Dialog>
 
