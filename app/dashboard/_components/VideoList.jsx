@@ -1,11 +1,14 @@
+'use client'
 import React, { useState } from 'react'
 import { Thumbnail } from "@remotion/player";
 import RemotionVideo from './RemotionVideo';
 import PlayerDialog from './PlayerDialog';
+import { useRouter } from 'next/navigation'
 
 function VideoList({ videoList }) {
     const [openPlayDialog,setOpenPlayerDialog]=useState(false);
     const [videoId,setVideoId]=useState();
+    const router = useRouter()
 
     return (
         <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6'>
@@ -13,7 +16,9 @@ function VideoList({ videoList }) {
                 <div key={video.id} 
                     className='group relative bg-transparent rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300
                     hover:scale-[1.02] cursor-pointer'
-                    onClick={() => { setOpenPlayerDialog(Date.now()); setVideoId(video?.id) }}
+                    onClick={() => { router.push(`/dashboard/video/${video?.id}`) 
+                    // setOpenPlayerDialog(Date.now()); setVideoId(video?.id) 
+                }}
                 >
                     <div className='aspect-[9/16] relative'>
                         <Thumbnail
