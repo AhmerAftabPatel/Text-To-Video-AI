@@ -20,10 +20,8 @@ import EmptyState from '../_components/EmptyState';
 import VideoList from '../_components/VideoList';
 import { Upload } from 'lucide-react';
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import * as pdfjs from 'pdfjs-dist';
-
-// Initialize PDF.js worker
-pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
+import pdfToText from 'react-pdftotext'
+// import pdfParse from 'pdf-parse';
 
 // Initialize Gemini AI
 const genAI = new GoogleGenerativeAI(process.env.NEXT_PUBLIC_GOOGLE_API_KEY);
@@ -34,6 +32,8 @@ function ResumeRoast() {
     duration: '15 Seconds'
 
   });
+  const router = useRouter()
+
   const [loading, setLoading] = useState(false);
   const [videoScript, setVideoScript] = useState();
   const [audioFileUrl, setAudioFileUrl] = useState();
@@ -91,7 +91,7 @@ function ResumeRoast() {
   // Get Video Script
   const GetVideoScript = async () => {
     setLoading(true)
-    const prompt = 'Write a script to generate ' + formData.duration + ' video on topic : ' + formData.topic + ' along with AI image prompt in ' + formData.imageStyle + ' format for each scene and give me result in JSON format with imagePrompt and ContentText as field, No Plain text'
+    const prompt = `Create a comedic video script roasting a resume in a lighthearted, funny way. Use exaggerated humor, relatable corporate buzzwords, and playful jabs at common resume mistakes like overused action verbs, vague accomplishments, or overly inflated skills. Be witty and engaging, ensuring the roast remains humorous but not mean-spirited. End with a funny but useful tip on how to improve the resume. to generate ' ${formData.duration} + video on roasting resume, this is the resume you have to roast: "${formData.topic}" along with AI image prompt in '${formData.imageStyle}' format for each scene and give me result in JSON format with imagePrompt and ContentText as field, No Plain text`
     console.log(prompt)
 
     try {
@@ -199,7 +199,8 @@ function ResumeRoast() {
 
       await UpdateUserCredits();
       setVideoid(result[0].id);
-      setPlayVideo(true)
+      router.push(`/dashboard/video/` + result[0].id)
+      // setPlayVideo(true)
       setLoading(false);
     } catch (error) {
       toast('Error saving video data')
@@ -221,6 +222,13 @@ function ResumeRoast() {
     }
   }
 
+  function extractText(file) {
+    // const file = event.target.files[0]
+    pdfToText(file)
+        .then(text => onHandleInputChange('topic', text))
+        .catch(error => console.error("Failed to extract text from pdf"))
+}
+
   const handlePdfUpload = async (e) => {
     const file = e.target.files?.[0];
     if (!file || file.type !== 'application/pdf') {
@@ -231,32 +239,32 @@ function ResumeRoast() {
     try {
       setIsUploading(true);
 
-      // Read the PDF file
-      const arrayBuffer = await file.arrayBuffer();
-      const pdf = await pdfjs.getDocument({ data: arrayBuffer }).promise;
+      // Create FormData and append file
+      const formData = new FormData();
+      formData.append('file', file);
       
-      // Extract text from all pages
-      let pdfText = '';
-      for (let i = 1; i <= pdf.numPages; i++) {
-        const page = await pdf.getPage(i);
-        const textContent = await page.getTextContent();
-        pdfText += textContent.items.map(item => item.str).join(' ');
-      }
-
+      // Send to our API route using axios
+      // const response = await axios.post('/api/resumeextract', formData, {
+      //   headers: {
+      //     'Content-Type': 'multipart/form-data',
+      //   }
+      // });
+      extractText(file)
+      // const { text } = response.data;
+      // console.log(text, "text extracted")
       // Process with Gemini
-      const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
-      const prompt = `Analyze this resume and provide a concise summary highlighting the key professional experiences, skills, and qualifications: ${pdfText}`;
+      // const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
+      // const prompt = `Analyze this resume and provide a concise summary highlighting the key professional experiences, skills, and qualifications: ${text}`;
 
-      const result = await model.generateContent(prompt);
-      const summary = result.response.text();
+      // const result = await model.generateContent(prompt);
+      // const summary = result.response.text();
 
-      // Update form data with the summary
-      setFormData(prev => ({
-        ...prev,
-        topic: summary
-      }));
+      // setFormData(prev => ({
+      //   ...prev,
+      //   topic: summary
+      // }));
       
-      toast.success('Resume text extracted successfully');
+      // toast.success('Resume text extracted successfully');
     } catch (error) {
       console.error('Error processing PDF:', error);
       toast.error('Failed to extract text from resume');
@@ -268,12 +276,12 @@ function ResumeRoast() {
   return (
     <div className='max-w-4xl mx-auto'>
       <div className='text-center mb-8'>
-        <h1 className='text-4xl font-bold text-white mb-2'>Transform your ideas into engaging short videos</h1>
+        <h1 className='text-4xl font-bold text-white mb-2'>Roast my resume with AI</h1>
         {/* <p className='text-gray-600'>Transform your ideas into engaging videos</p> */}
       </div>
 
       <div className=''>
-        <div className='flex mb-4 gap-4'>
+        {/* <div className='flex mb-4 gap-4'>
           <Button
             className="font-semibold"
             onClick={onCreateClickHandler}
@@ -288,8 +296,9 @@ function ResumeRoast() {
           >
             Create Campaign
           </Button>
-        </div>
-
+        </div> */}
+        <p className='text-white'>Upload your resume</p>
+        <br/>
         <div className="mb-6 text-center">
           <label className="relative group cursor-pointer">
             <input
@@ -336,7 +345,7 @@ function ResumeRoast() {
           </div> */}
 
           <div className='rounded-lg'>
-            <SelectTopic onUserSelect={onHandleInputChange} />
+            <SelectTopic onUserSelect={onHandleInputChange} value={formData?.topic}/>
           </div>
 
           {/* <div className='bg-gray-50 rounded-lg p-6 mb-6'>
@@ -358,21 +367,21 @@ function ResumeRoast() {
               onClick={onCreateClickHandler}
               disabled={loading || !formData.topic || !formData.imageStyle || !formData.duration}
             >
-              {loading ? 'Generating Video...' : 'Create Video'}
+              {loading ? 'Generating Video...' : 'Roast my resume'}
             </Button>
           </div>
         </div>
       </div>
       <div>
         {/* Empty State */}
-        {videoList?.length == 0 && <div className='mt-8'>
+        {/* {videoList?.length == 0 && <div className='mt-8'>
           <EmptyState />
-        </div>}
+        </div>} */}
 
         {/* Video Grid */}
-        {videoList?.length > 0 && <div className='mt-6'>
+        {/* {videoList?.length > 0 && <div className='mt-6'>
           <VideoList videoList={videoList} />
-        </div>}
+        </div>} */}
       </div>
 
       {loading && (
@@ -382,7 +391,7 @@ function ResumeRoast() {
           </div>
         </div>
       )}
-      <PlayerDialog playVideo={playVideo} videoId={videoId} />
+      {/* <PlayerDialog playVideo={playVideo} videoId={videoId} /> */}
     </div>
   )
 }

@@ -124,6 +124,7 @@ function CreateNew() {
       setAudioFileUrl(resp.data.result);
       resp.data.result && await GenerateAudioCaption(resp.data.result, videoScriptData)
     } catch (error) {
+      console.log(error)
       toast('Error generating audio')
       setLoading(false)
     }
