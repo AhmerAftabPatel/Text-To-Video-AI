@@ -24,7 +24,7 @@ import pdfToText from 'react-pdftotext'
 // import pdfParse from 'pdf-parse';
 
 // Initialize Gemini AI
-const genAI = new GoogleGenerativeAI(process.env.NEXT_PUBLIC_GOOGLE_API_KEY);
+// const genAI = new GoogleGenerativeAI(process.env.NEXT_PUBLIC_GOOGLE_API_KEY);
 
 function ResumeRoast() {
   const [formData, setFormData] = useState({
@@ -34,7 +34,7 @@ function ResumeRoast() {
   });
   const router = useRouter()
 
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(false);r
   const [videoScript, setVideoScript] = useState();
   const [audioFileUrl, setAudioFileUrl] = useState();
   const [captions, setCaptions] = useState();
