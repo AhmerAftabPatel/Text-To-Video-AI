@@ -34,7 +34,7 @@ function ResumeRoast() {
   });
   const router = useRouter()
 
-  const [loading, setLoading] = useState(false);r
+  const [loading, setLoading] = useState(false);
   const [videoScript, setVideoScript] = useState();
   const [audioFileUrl, setAudioFileUrl] = useState();
   const [captions, setCaptions] = useState();
