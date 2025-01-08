@@ -58,7 +58,7 @@ function Dashboard() {
     <div className="min-h-screen p-6 bg-gradient-to-b from-background to-background/80">
       <div className='space-y-8'>
         {/* Header Section */}
-        <div className='flex flex-col space-y-4 md:flex-row md:justify-between md:items-center bg-card p-6 rounded-xl shadow-lg'>
+        {/* <div className='flex flex-col space-y-4 md:flex-row md:justify-between md:items-center bg-card p-6 rounded-xl shadow-lg'>
           <div>
             <h2 className='font-bold text-3xl bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent'>Video Studio</h2>
             <p className='text-muted-foreground mt-1'>Create amazing videos with AI</p>
@@ -69,12 +69,12 @@ function Dashboard() {
             </div>
             <Link href={'/dashboard/create-cliply'}>
               <Button className="bg-primary hover:bg-primary/90 text-white px-6">
-                {/* <span className="mr-2">+</span> */}
+                
                 Create
               </Button>
             </Link>
           </div>
-        </div>
+        </div> */}
 
         {/* Feature Cards Grid */}
         <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto mt-8">

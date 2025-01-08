@@ -67,7 +67,7 @@ function ResumeRoast() {
    */
   const GetVideoList = async () => {
     const result = await db.select().from(VideoData)
-      .where(eq(VideoData?.createdBy, user?.primaryEmailAddress?.emailAddress))
+      .where(eq(VideoData?.createdBy, user?.primaryEmailAddress?.emailAddress, 'resume-roast'))
       .orderBy(desc(VideoData.id))
       ;
 
@@ -193,6 +193,7 @@ function ResumeRoast() {
         script: videoData?.videoScript,
         audioFileUrl: videoData?.audioFileUrl ?? '',
         captions: videoData?.captions ?? '',
+        type: 'resume-roast',
         imageList: videoData?.imageList ?? [],
         createdBy: user?.primaryEmailAddress?.emailAddress
       }).returning({ id: VideoData?.id })
@@ -379,9 +380,9 @@ function ResumeRoast() {
         </div>} */}
 
         {/* Video Grid */}
-        {/* {videoList?.length > 0 && <div className='mt-6'>
+        {videoList?.length > 0 && <div className='mt-6'>
           <VideoList videoList={videoList} />
-        </div>} */}
+        </div>}
       </div>
 
       {loading && (
