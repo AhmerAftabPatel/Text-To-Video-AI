@@ -82,7 +82,7 @@ function CreateNew() {
   }
 
   const GetVideoScript = async () => {
-    const prompt = `Generate a detailed and engaging video script for a duration of "${formData.duration}" seconds on the topic "${formData.topic}". The script should be divided into well-structured scenes, each containing:
+    const prompt = `Generate a detailed and engaging video script for a duration of "minimum: ${formData.duration} seconds and maximum 2 minutes" on the topic "${formData.topic}". The script should be divided into well-structured scenes, each containing:
 - "ContentText": The narration text
 - "imagePrompt": Description for AI-generated visuals
 - "videoSearchTerm": Short, specific search term for video clips according to the contentText (optional)
