@@ -12,131 +12,112 @@ import { VideoDataContext } from '../_context/VideoDataContext';
 import { FileText, Video } from 'lucide-react';
 
 function Dashboard() {
-  const [videoList,setVideoList]=useState([]);
-  const {user}=useUser();
-  const {videoData,setVideoData}=useContext(VideoDataContext);
-  useEffect(()=>{
-    user&&GetVideoList();
-  },[user])
+  const [videoList, setVideoList] = useState([]);
+  const { user } = useUser();
+  const { videoData, setVideoData } = useContext(VideoDataContext);
 
-  useEffect(()=>{
-    setVideoData(null);// Make Sure it will Null before creating the new Video
-  },[])
-  /**
-   * Used to Get Users Video
-   */
-  const GetVideoList=async()=>{
-    const result=await db.select().from(VideoData)
-    .where(eq(VideoData?.createdBy,user?.primaryEmailAddress?.emailAddress))
-    .orderBy(desc(VideoData.id))
-    ;
+  useEffect(() => {
+    user && GetVideoList();
+  }, [user])
 
-    console.log(result);
+  useEffect(() => {
+    setVideoData(null);
+  }, [])
+
+  const GetVideoList = async () => {
+    const result = await db.select().from(VideoData)
+      .where(eq(VideoData?.createdBy, user?.primaryEmailAddress?.emailAddress))
+      .orderBy(desc(VideoData.id));
     setVideoList(result);
   }
 
   const features = [
-    {
-      title: "Resume Roast",
-      description: "Get your resume roasted by AI with humor and helpful feedback",
-      icon: FileText,
-      path: "/dashboard/resume-roast",
-      gradient: "from-orange-400 to-rose-400",
-      hoverScale: "hover:scale-[1.02]"
-    },
     {
       title: "Short Video",
       description: "Create engaging AI-powered short videos in minutes",
       icon: Video,
       path: "/dashboard/create-cliply",
       gradient: "from-blue-400 to-violet-400",
-      hoverScale: "hover:scale-[1.02]"
-    }
+    },
+    {
+      title: "Resume Roast",
+      description: "Get your resume roasted by AI with humor and helpful feedback",
+      icon: FileText,
+      path: "/dashboard/resume-roast",
+      gradient: "from-orange-400 to-rose-400",
+    },
   ];
 
   return (
-    <div className="min-h-screen p-6 bg-gradient-to-b from-background to-background/80">
-      <div className='space-y-8'>
-        {/* Header Section */}
-        {/* <div className='flex flex-col space-y-4 md:flex-row md:justify-between md:items-center bg-card p-6 rounded-xl shadow-lg'>
-          <div>
-            <h2 className='font-bold text-3xl bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent'>Video Studio</h2>
-            <p className='text-muted-foreground mt-1'>Create amazing videos with AI</p>
-          </div>
-          <div className='flex items-center space-x-4'>
-            <div className='flex items-center space-x-2 text-muted-foreground'>
-              <span>Total Videos: {videoList?.length || 0}</span>
-            </div>
-            <Link href={'/dashboard/create-cliply'}>
-              <Button className="bg-primary hover:bg-primary/90 text-white px-6">
-                
-                Create
-              </Button>
-            </Link>
-          </div>
-        </div> */}
-
-        {/* Feature Cards Grid */}
-        <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto mt-8">
+    <div className="min-h-screen dark:bg-gray-900">
+      {/* Main Content */}
+      <div className="p-2 sm:p-6 max-w-7xl mx-auto">
+        {/* Feature Cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-6">
           {features.map((feature, index) => (
             <Link 
               href={feature.path} 
               key={index}
               className={`
-                group relative overflow-hidden rounded-xl p-8
+                relative overflow-hidden rounded-xl p-4 sm:p-6
                 bg-gradient-to-r ${feature.gradient}
-                transition-all duration-300 ease-out
-                ${feature.hoverScale}
-                hover:shadow-xl
-                cursor-pointer
+                transition-all duration-300
+                hover:shadow-lg
+                group
               `}
             >
-              <div className="relative z-10">
-                <div className="flex items-center space-x-4 mb-4">
-                  <div className="p-3 bg-white/10 rounded-lg backdrop-blur-sm">
-                    <feature.icon className="w-6 h-6 text-white" />
-                  </div>
-                  <h3 className="text-2xl font-bold text-white">{feature.title}</h3>
+              <div className="flex items-start gap-4">
+                <div className="p-3 bg-white/10 rounded-lg backdrop-blur-sm">
+                  <feature.icon className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                 </div>
-                <p className="text-white/90">{feature.description}</p>
-                
-                {/* Subtle arrow indicator */}
-                <div className="absolute bottom-4 right-4 transform translate-x-2 opacity-0 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300">
-                  <svg 
-                    className="w-6 h-6 text-white"
-                    fill="none" 
-                    stroke="currentColor" 
-                    viewBox="0 0 24 24"
-                  >
-                    <path 
-                      strokeLinecap="round" 
-                      strokeLinejoin="round" 
-                      strokeWidth={2} 
-                      d="M17 8l4 4m0 0l-4 4m4-4H3" 
-                    />
+                <div className="flex-1">
+                  <h3 className="text-lg sm:text-xl font-semibold text-white mb-1 sm:mb-2">
+                    {feature.title}
+                  </h3>
+                  <p className="text-sm sm:text-base text-white/90">
+                    {feature.description}
+                  </p>
+                </div>
+                <div className="absolute right-4 top-1/2 -translate-y-1/2 opacity-0 transform translate-x-4 transition-all duration-300 group-hover:opacity-100 group-hover:translate-x-0">
+                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                   </svg>
                 </div>
               </div>
-
-              {/* Decorative background elements */}
-              <div className="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-white/10 rounded-full blur-2xl transform rotate-45 opacity-50" />
-              <div className="absolute bottom-0 left-0 -mb-4 -ml-4 w-24 h-24 bg-white/10 rounded-full blur-2xl transform -rotate-45 opacity-50" />
             </Link>
           ))}
         </div>
 
-        {/* Empty State */}
-        {videoList?.length == 0 && <div className='mt-8'>
-          <EmptyState />
-        </div>}
+        {/* Recent Videos Section */}
+        <div className="mt-6 sm:mt-8">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0 mb-4">
+            <div>
+              <h2 className="text-xl sm:text-2xl font-bold text-white dark:text-white">
+                Recent Videos
+              </h2>
+              <p className="text-sm sm:text-base text-white dark:text-gray-400">
+                {videoList?.length} videos created
+              </p>
+            </div>
+            <Link href="/dashboard/create-cliply">
+              <Button className="w-full sm:w-auto bg-gradient-to-r from-blue-400 to-violet-400 text-white hover:opacity-90">
+                Create New Video
+              </Button>
+            </Link>
+          </div>
 
-        {/* Video Grid */}
-        {videoList?.length > 0 && <div className='mt-6'>
-          <VideoList videoList={videoList} />
-        </div>}
+          {/* Video List */}
+          {videoList?.length === 0 ? (
+            <EmptyState />
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4">
+              <VideoList videoList={videoList} />
+            </div>
+          )}
+        </div>
       </div>
     </div>
-  )
+  );
 }
 
-export default Dashboard
+export default Dashboard;

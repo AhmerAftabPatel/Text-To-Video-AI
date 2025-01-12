@@ -28,18 +28,18 @@ function DashboardLayout({ children }) {
     <UserDetailContext.Provider value={{userDetail, setUserDetail}}>
       <VideoDataContext.Provider value={{ videoData, setVideoData }}>
         <div>
-          {/* <div className='hidden md:block h-screen bg-white fixed mt-[65px] w-64'>
-            <SideNav />
-          </div> */}
           <div>
             <Header />
-            <div className='p-10 pt-24'>
-              <div className='bg-blue-500 rounded-xl py-10' style={{background : "radial-gradient(at 68.5155% 112.605%, rgb(105, 48, 239), rgb(69, 6, 159))"}}>
-              {children}
+            <div className='pt-20 sm:p-10 sm:pt-24'>
+              <div className='bg-blue-500 rounded-none sm:rounded-xl py-10' 
+                style={{
+                  background: "radial-gradient(at 68.5155% 112.605%, rgb(105, 48, 239), rgb(69, 6, 159))"
+                }}
+              >
+                {children}
               </div>
             </div>
           </div>
-
         </div>
       </VideoDataContext.Provider>
     </UserDetailContext.Provider>

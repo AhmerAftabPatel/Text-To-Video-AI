@@ -8,9 +8,8 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-background/80">
       {/* Header */}
-      <div className='p-4 md:p-6 flex items-center fixed w-full bg-background/80 backdrop-blur-lg justify-between z-50 border-b'>
-        <div className='flex gap-3 items-center'>
-          {/* <Image src={'/logo.svg'} width={35} height={35} alt="Logo"/> */}
+      {/* <div className='p-4 md:p-6 flex items-center fixed w-full bg-background/80 backdrop-blur-lg justify-between  border-b'> */}
+        {/* <div className='flex gap-3 items-center'>
           <h2 className='font-bold text-xl md:text-2xl bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent'>Cliply AI</h2>
         </div>
         <div className='flex gap-4 items-center'>
@@ -18,17 +17,17 @@ export default function Home() {
             <Button variant="ghost">Login</Button>
           </Link>
           <UserButton afterSignOutUrl="/"/>
-        </div>
-      </div>
+        </div> */}
+      {/* </div> */}
 
       {/* Hero Section */}
-      <section className="pt-24 md:pt-32 px-4">
+      <section className="pt-16 md:pt-16 px-4">
         <div className="max-w-6xl mx-auto text-center">
           <div className="inline-flex items-center px-4 py-1.5 mb-6 border rounded-full text-sm font-medium bg-muted">
             {/* <span className="w-2 h-2 rounded-full bg-primary mr-2"></span> */}
             Made with ❤️ by &nbsp; <a href="https://github.com/ahmeraftab">Ahmer Aftab</a>
           </div>
-          
+          <Image src="/cliply_logo_no_backgroubd.png" width={200} height={50}/>
           <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight mb-6">
             Transform Your Text into 
             <span className="block mt-2 bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
@@ -87,9 +86,10 @@ export default function Home() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
               </div>
-              <h3 className="text-xl font-semibold mb-2">AI Image Generation</h3>
+              <h3 className="text-xl font-semibold mb-2">AI Image/Video Generation</h3>
               <p className="text-muted-foreground">Create stunning visuals and scenes with state-of-the-art AI image generation.</p>
             </div>
+            
           </div>
         </div>
       </section>

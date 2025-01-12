@@ -1,4 +1,4 @@
-import { boolean, integer, json, pgTable, serial, varchar } from "drizzle-orm/pg-core";
+import { boolean, integer, json, pgTable, serial, varchar, text } from "drizzle-orm/pg-core";
 
 export const Users=pgTable('users',{
     id:serial('id').primaryKey(),
@@ -16,5 +16,8 @@ export const VideoData=pgTable('videoData',{
     captions:json('captions').notNull(),
     imageList:varchar('imageList').array(),
     type: varchar('type').default('general'),
-    createdBy:varchar('createdBy').notNull()
+    createdBy:varchar('createdBy').notNull(),
+    videoClips: json('video_clips').array(),
+    isPublic:boolean('is_public').default(false),
+    shareableUrl:text('shareable_url')
 })

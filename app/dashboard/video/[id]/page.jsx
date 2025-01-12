@@ -1,6 +1,6 @@
 'use client';
 import React, { useState, useRef, useEffect } from 'react';
-import { FaPlay, FaPause, FaCrop, FaText, FaMusic, FaImage } from 'react-icons/fa';
+import { FaPlay, FaPause, FaCrop, FaText, FaMusic, FaImage, FaWhatsapp } from 'react-icons/fa';
 import { MdTimeline, MdUndo, MdRedo } from 'react-icons/md';
 import { useParams } from 'next/navigation';
 import PlayerDialog from '../../_components/PlayerDialog';
@@ -9,6 +9,16 @@ import { Player } from "@remotion/player";
 import RemotionVideo from '../../_components/RemotionVideo';
 import { db } from '@/configs/db';
 import { eq } from 'drizzle-orm';
+import { PartyPopper, Share2, Facebook, Twitter, Linkedin, Instagram, Copy, Check } from 'lucide-react';
+import { toast } from 'sonner';
+import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Switch } from "@/components/ui/switch"
 
 const CAPTION_STYLES = {
   DEFAULT: 'default',
@@ -23,9 +33,7 @@ const EditVideo = () => {
   const [selectedTool, setSelectedTool] = useState(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const videoRef = useRef(null);
-  const [playVideo, setPlayVideo] = useState(false);
   const [videoId, setVideoId] = useState(params.id);
-  const [timeline, setTimeline] = useState([]);
   const [videoData, setVideoData] = useState();
     const [durationInFrame,setDurationInFrame]=useState(100);
   const [editedContent, setEditedContent] = useState({
@@ -35,6 +43,9 @@ const EditVideo = () => {
       style: CAPTION_STYLES.DEFAULT
     }]
   });
+  const [isPublic, setIsPublic] = useState(false);
+  const [shareableUrl, setShareableUrl] = useState('');
+  const [isCopied, setIsCopied] = useState(false);
 
   useEffect(() => {
     if (videoId) {
@@ -49,6 +60,8 @@ const EditVideo = () => {
       setEditedContent({
         script: videoData.script || [{ imagePrompt: '', contentText: '' }]
       });
+      setIsPublic(videoData.isPublic || false);
+      setShareableUrl(videoData.shareableUrl || '');
     }
   }, [videoData]);
 
@@ -107,230 +120,181 @@ const EditVideo = () => {
     console.log('Updated content:', editedContent);
   };
 
+  const toggleShare = async () => {
+    try {
+      const response = await fetch('/api/share-video', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          videoId: params.id, 
+          isPublic: !isPublic 
+        })
+      });
+      
+      const data = await response.json();
+      if (data.success) {
+        setIsPublic(data.data.isPublic);
+        setShareableUrl(data.data.shareableUrl);
+        
+        if (!isPublic) {
+          navigator.clipboard.writeText(data.data.shareableUrl);
+          toast('Share link copied to clipboard!');
+        }
+        toast(isPublic ? 'Video is now private' : 'Video is now public');
+      }
+    } catch (error) {
+      console.error('Error sharing video:', error);
+      toast('Error sharing video');
+    }
+  };
+
+  const handleSocialShare = (platform) => {
+    if (!shareableUrl) {
+      toast.error('Please make the video public first');
+      return;
+    }
+
+    const shareUrls = {
+      facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareableUrl)}`,
+      twitter: `https://twitter.com/intent/tweet?url=${encodeURIComponent(shareableUrl)}&text=${encodeURIComponent('Check out this video I created with Cliply AI!')}`,
+      linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareableUrl)}`,
+      instagram: `https://www.instagram.com/share?url=${encodeURIComponent(shareableUrl)}`,
+      whatsapp: `https://wa.me/?text=${encodeURIComponent('Check out this video I created with Cliply AI! ' + shareableUrl)}`
+    };
+
+    window.open(shareUrls[platform], '_blank', 'width=600,height=400');
+  };
+
+  const copyToClipboard = async () => {
+    try {
+      await navigator.clipboard.writeText(shareableUrl);
+      setIsCopied(true);
+      toast.success('Link copied to clipboard!');
+      setTimeout(() => setIsCopied(false), 2000);
+    } catch (err) {
+      toast.error('Failed to copy link');
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-gray-100">
-      {/* Header */}
-      <header className="bg-white border-b p-4">
-        <div className="flex justify-between items-center">
-          <h1 className="text-2xl font-bold">Video Editor</h1>
-          <button className="bg-blue-500 text-white px-4 py-2 rounded">
-            Export Video
-          </button>
-        </div>
-      </header>
-
-      <div className="flex">
-        {/* Tools Sidebar - kept at 64px */}
-        <div className="w-16 bg-white h-screen border-r">
-          <div className="flex flex-col gap-4 p-2">
-            <button
-              className={`p-3 rounded ${selectedTool === 'text' ? 'bg-blue-100' : 'hover:bg-gray-100'}`}
-              onClick={() => setSelectedTool('text')}
-            >
-              {/* <FaText /> */}
-            </button>
-            <button
-              className={`p-3 rounded ${selectedTool === 'crop' ? 'bg-blue-100' : 'hover:bg-gray-100'}`}
-              onClick={() => setSelectedTool('crop')}
-            >
-              <FaCrop />
-            </button>
-            <button
-              className={`p-3 rounded ${selectedTool === 'music' ? 'bg-blue-100' : 'hover:bg-gray-100'}`}
-              onClick={() => setSelectedTool('music')}
-            >
-              <FaMusic />
-            </button>
-            <button
-              className={`p-3 rounded ${selectedTool === 'image' ? 'bg-blue-100' : 'hover:bg-gray-100'}`}
-              onClick={() => setSelectedTool('image')}
-            >
-              <FaImage />
-            </button>
-          </div>
-        </div>
-
-        {/* Main Editor Area - Better proportioned */}
-        <div className="w-[480px] p-4">
-          <div className="bg-black rounded-lg overflow-hidden relative">
-            <div className='flex gap-4 justify-center'>
-              <div className="relative">
-                <Player
-                  component={RemotionVideo}
-                  durationInFrames={Number(durationInFrame.toFixed(0))+100}
-                  compositionWidth={720}
-                  compositionHeight={1280}
-                  fps={30}
-                  controls={true}
-                  inputProps={{
-                    ...videoData,
-                    setDurationInFrame:(frameValue)=>setDurationInFrame(frameValue)
-                  }}
-                  style={{
-                    width: '270px',    // Adjusted for better visibility
-                    height: '480px'    // Maintained 9:16 aspect ratio
-                  }}
-                />
-              </div>
+    <div className="min-h-screen bg-gray-100 p-2 sm:p-4">
+      {/* Success Message */}
+      <div className="w-full max-w-2xl mx-auto mb-4 sm:mb-8">
+        <div className="bg-green-500/10 border border-green-500/20 rounded-lg p-3 sm:p-6">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4 mb-2">
+            <div className="flex items-center gap-3">
+              <PartyPopper className="w-5 h-5 sm:w-6 sm:h-6 text-green-400" />
+              <h3 className="text-base sm:text-lg font-semibold text-green-400">Congratulations! 🎉</h3>
             </div>
-
-            {/* Video Controls - Adjusted positioning */}
-            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 p-4">
-              <div className="flex items-center gap-4">
-                {/* <button
-                  onClick={handlePlayPause}
-                  className="text-white hover:text-blue-400"
-                >
-                  {isPlaying ? <FaPause /> : <FaPlay />}
-                </button> */}
-                {/* <div className="flex-1 bg-gray-600 h-1 rounded-full">
-                  <div className="bg-blue-500 h-full w-1/3 rounded-full" />
-                </div> */}
-                {/* <span className="text-white">00:00 / 03:24</span> */}
-              </div>
+            <div className="flex items-center gap-2">
+              <span className="text-sm">
+                {isPublic ? 'Public' : 'Private'}
+              </span>
+              <Switch
+                checked={isPublic}
+                onCheckedChange={toggleShare}
+                className="data-[state=checked]:bg-green-500"
+              />
             </div>
           </div>
+          <p className="text-gray-700 dark:text-gray-300 text-sm md:text-base">
+            Your video has been created successfully! {isPublic ? 'Share it with others using the buttons below.' : 'Make it public to share with others.'}
+          </p>
+        </div>
+      </div>
 
-          {/* Timeline */}
-          <div className="mt-4 bg-white p-4 rounded-lg">
-            <div className="flex items-center gap-4 mb-4">
-              <MdTimeline className="text-xl" />
-              <h3 className="font-semibold">Timeline</h3>
-              <div className="flex gap-2 ml-auto">
-                <button className="p-2 hover:bg-gray-100 rounded">
-                  <MdUndo />
-                </button>
-                <button className="p-2 hover:bg-gray-100 rounded">
-                  <MdRedo />
-                </button>
-              </div>
-            </div>
-            <div className="h-24 border rounded-lg bg-gray-50">
-              {/* Timeline tracks will go here */}
+      {/* Video Player Section */}
+      <div className="w-full max-w-md mx-auto p-0 sm:p-4">
+        <div className="bg-black rounded-lg overflow-hidden relative">
+          <div className='flex justify-center'>
+            <div className="relative w-full">
+              <Player
+                component={RemotionVideo}
+                durationInFrames={Number(durationInFrame.toFixed(0))+100}
+                compositionWidth={720}
+                compositionHeight={1280}
+                fps={30}
+                controls={true}
+                inputProps={{
+                  ...videoData,
+                  setDurationInFrame:(frameValue)=>setDurationInFrame(frameValue)
+                }}
+                style={{
+                  width: '100%',
+                  maxWidth: '100vw',
+                  aspectRatio: '9/16',
+                  margin: '0 auto'
+                }}
+              />
             </div>
           </div>
         </div>
 
-        {/* Properties Panel - Fixed header and footer, scrollable content */}
-        <div className="flex-1 bg-white border-l flex flex-col h-screen">
-          {/* Fixed Header */}
-          <div className="p-4 border-b">
-            <h3 className="font-semibold">Properties</h3>
-          </div>
-
-          {/* Content Area */}
-          <div className="flex-1 flex flex-col min-h-0"> {/* min-h-0 is important for nested flex scroll */}
-            {/* Script Header - Fixed */}
-            <div className="p-4 border-b">
-              <div className="flex justify-between items-center">
-                <h3 className="font-semibold">Script Content</h3>
-                <button
-                  onClick={addScriptItem}
-                  className="text-sm bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600"
-                >
-                  Add Scene
-                </button>
-              </div>
-            </div>
-
-            {/* Scrollable Script Content */}
-            <div className="flex-1 overflow-y-auto p-4">
-              <div className="space-y-4">
-                {editedContent.script.map((item, index) => (
-                  <div key={index} className="bg-white border rounded-lg shadow-sm">
-                    <div className="p-4 space-y-4">
-                      <div className="flex justify-between items-start">
-                        <h4 className="font-medium text-sm text-gray-700">Scene {index + 1}</h4>
-                        {editedContent.script.length > 1 && (
-                          <button
-                            onClick={() => removeScriptItem(index)}
-                            className="text-red-500 hover:text-red-700"
-                          >
-                            ×
-                          </button>
-                        )}
-                      </div>
-
-                      {/* Scene Content */}
-                      <div className="space-y-4">
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Content Text
-                          </label>
-                          <textarea
-                            value={item.contentText}
-                            onChange={(e) => handleScriptChange(index, 'contentText', e.target.value)}
-                            className="w-full h-24 p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                            placeholder="Enter content text..."
-                            required
-                          />
-                        </div>
-
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Caption Style
-                          </label>
-                          <select
-                            value={item.style || CAPTION_STYLES.DEFAULT}
-                            onChange={(e) => handleScriptChange(index, 'style', e.target.value)}
-                            className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                          >
-                            <option value={CAPTION_STYLES.DEFAULT}>Default Style</option>
-                            <option value={CAPTION_STYLES.MINIMAL}>Minimal</option>
-                            <option value={CAPTION_STYLES.BOLD}>Bold</option>
-                            <option value={CAPTION_STYLES.CREATIVE}>Creative</option>
-                            <option value={CAPTION_STYLES.SUBTITLE}>Subtitle</option>
-                          </select>
-                          
-                          {/* Style Preview */}
-                          <div className="mt-2 p-3 bg-gray-50 rounded-md">
-                            <div className={`text-sm ${
-                              item.style === CAPTION_STYLES.BOLD 
-                                ? 'font-bold text-lg'
-                                : item.style === CAPTION_STYLES.CREATIVE
-                                ? 'font-serif italic'
-                                : item.style === CAPTION_STYLES.MINIMAL
-                                ? 'text-sm font-light'
-                                : item.style === CAPTION_STYLES.SUBTITLE
-                                ? 'font-mono text-sm'
-                                : 'font-normal'
-                            }`}>
-                              Style Preview: {item.contentText || 'Your text will appear like this'}
-                            </div>
-                          </div>
-                        </div>
-
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Image Prompt
-                          </label>
-                          <textarea
-                            value={item.imagePrompt}
-                            onChange={(e) => handleScriptChange(index, 'imagePrompt', e.target.value)}
-                            className="w-full h-24 p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                            placeholder="Enter image prompt..."
-                            required
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Fixed Footer */}
-            <div className="p-4 border-t">
-              <button
-                onClick={handleUpdateContent}
-                className="w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 transition-colors"
-                disabled={!editedContent.script.some(item => item.contentText && item.imagePrompt)}
+        {/* Share Buttons Section */}
+        {isPublic && (
+          <div className="mt-4 sm:mt-6 space-y-3 sm:space-y-4 px-2 sm:px-0">
+            <h4 className="text-base sm:text-lg font-semibold text-gray-700">Share Your Video</h4>
+            <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-2 sm:gap-3">
+              <Button
+                variant="outline"
+                className="flex items-center justify-center gap-2 hover:bg-blue-600 hover:text-white w-full sm:w-auto"
+                onClick={() => handleSocialShare('facebook')}
               >
-                Update Content
-              </button>
+                <Facebook className="w-4 h-4" />
+                <span className="hidden sm:inline">Facebook</span>
+              </Button>
+              
+              <Button
+                variant="outline"
+                className="flex items-center justify-center gap-2 hover:bg-blue-400 hover:text-white w-full sm:w-auto"
+                onClick={() => handleSocialShare('twitter')}
+              >
+                <Twitter className="w-4 h-4" />
+                <span className="hidden sm:inline">X</span>
+              </Button>
+              
+              <Button
+                variant="outline"
+                className="flex items-center justify-center gap-2 hover:bg-blue-700 hover:text-white w-full sm:w-auto"
+                onClick={() => handleSocialShare('linkedin')}
+              >
+                <Linkedin className="w-4 h-4" />
+                <span className="hidden sm:inline">LinkedIn</span>
+              </Button>
+              
+              <Button
+                variant="outline"
+                className="flex items-center justify-center gap-2 hover:bg-pink-600 hover:text-white w-full sm:w-auto"
+                onClick={() => handleSocialShare('instagram')}
+              >
+                <Instagram className="w-4 h-4" />
+                <span className="hidden sm:inline">Instagram</span>
+              </Button>
+
+              <Button
+                variant="outline"
+                className="flex items-center justify-center gap-2 hover:bg-green-600 hover:text-white w-full sm:w-auto"
+                onClick={() => handleSocialShare('whatsapp')}
+              >
+                <FaWhatsapp className="w-4 h-4" />
+                <span className="hidden sm:inline">WhatsApp</span>
+              </Button>
+              
+              <Button
+                variant="outline"
+                className="flex items-center justify-center gap-2 hover:bg-gray-700 hover:text-white w-full sm:w-auto"
+                onClick={copyToClipboard}
+              >
+                {isCopied ? (
+                  <Check className="w-4 h-4" />
+                ) : (
+                  <Copy className="w-4 h-4" />
+                )}
+                <span className="hidden sm:inline">{isCopied ? 'Copied!' : 'Copy'}</span>
+              </Button>
             </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );

@@ -3,14 +3,20 @@ import Image from 'next/image'
 
 export default function Page() {
   return (
-    <div className='grid grid-cols-1 md:grid-cols-2'>
-      <div>
-        <Image src={'/out-0.jpg'}
-         alt='login' width={500} height={500}
-         className='w-full object-contain h-full'
-         />
+    <div className='min-h-screen flex flex-col items-center justify-center p-4'>
+      {/* Logo Section */}
+      <div className='mb-8'>
+        <Image 
+          src='/cliply_logo_no_backgroubd.png'
+          alt='Cliply AI' 
+          width={180} 
+          height={180}
+          className='w-auto'
+        />
       </div>
-      <div className='flex justify-center items-center h-screen'>
+
+      {/* Sign In Form */}
+      <div className='w-full max-w-md'>
         <SignIn/>
       </div>
     </div>
