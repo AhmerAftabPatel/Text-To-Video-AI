@@ -37,6 +37,24 @@ export default function Home() {
             Create professional-quality videos from your text in minutes. Powered by advanced AI to generate scenes, narration, and visuals automatically.
           </p>
 
+          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16">
+            <Link href="/dashboard">
+              <Button size="lg" className="text-lg px-8">
+                Start Creating
+                <svg className="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                </svg>
+              </Button>
+            </Link>
+            <Button size="lg" variant="outline" className="text-lg px-8">
+              Watch Demo
+              <svg className="ml-2 w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
+                <path fillRule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clipRule="evenodd" />
+              </svg>
+            </Button>
+          </div>
+
           {/* Demo Video */}
           <div className="relative w-full max-w-4xl mx-auto mb-16">
             <div 
@@ -69,23 +87,7 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16">
-            <Link href="/dashboard">
-              <Button size="lg" className="text-lg px-8">
-                Start Creating
-                <svg className="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                </svg>
-              </Button>
-            </Link>
-            <Button size="lg" variant="outline" className="text-lg px-8">
-              Watch Demo
-              <svg className="ml-2 w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
-                <path fillRule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clipRule="evenodd" />
-              </svg>
-            </Button>
-          </div>
+          
 
           {/* Features Grid */}
           <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto text-left">
