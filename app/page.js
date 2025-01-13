@@ -3,31 +3,29 @@ import { Button } from "@/components/ui/button";
 import { UserButton } from "@clerk/nextjs";
 import Image from "next/image";
 import Link from "next/link";
+import Script from "next/script";
 
 export default function Home() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-background/80">
-      {/* Header */}
-      {/* <div className='p-4 md:p-6 flex items-center fixed w-full bg-background/80 backdrop-blur-lg justify-between  border-b'> */}
-        {/* <div className='flex gap-3 items-center'>
-          <h2 className='font-bold text-xl md:text-2xl bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent'>Cliply AI</h2>
-        </div>
-        <div className='flex gap-4 items-center'>
-          <Link href={'/dashboard'}>
-            <Button variant="ghost">Login</Button>
-          </Link>
-          <UserButton afterSignOutUrl="/"/>
-        </div> */}
-      {/* </div> */}
+      {/* Storylane Script */}
+      <Script 
+        src="https://js.storylane.io/js/v2/storylane.js" 
+        strategy="lazyOnload"
+      />
 
       {/* Hero Section */}
       <section className="pt-16 md:pt-16 px-4">
         <div className="max-w-6xl mx-auto text-center">
           <div className="inline-flex items-center px-4 py-1.5 mb-6 border rounded-full text-sm font-medium bg-muted">
-            {/* <span className="w-2 h-2 rounded-full bg-primary mr-2"></span> */}
             Made with ❤️ by &nbsp; <a href="https://github.com/ahmeraftab">Ahmer Aftab</a>
           </div>
-          <Image src="/cliply_logo_no_backgroubd.png" width={200} height={50}/>
+          <Image 
+            src="/cliply_logo_no_backgroubd.png" 
+            width={200} 
+            height={50} 
+            alt="Cliply Logo"
+          />
           <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight mb-6">
             Transform Your Text into 
             <span className="block mt-2 bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
@@ -38,6 +36,38 @@ export default function Home() {
           <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto mb-8">
             Create professional-quality videos from your text in minutes. Powered by advanced AI to generate scenes, narration, and visuals automatically.
           </p>
+
+          {/* Demo Video */}
+          <div className="relative w-full max-w-4xl mx-auto mb-16">
+            <div 
+              className="relative w-full" 
+              style={{
+                paddingBottom: 'calc(53.72% + 25px)',
+                height: 0,
+                transform: 'scale(1)'
+              }}
+            >
+              <iframe 
+                loading="lazy" 
+                className="sl-demo" 
+                src="https://app.storylane.io/demo/iuy1ffpwpksf?embed=inline" 
+                name="sl-embed" 
+                allow="fullscreen" 
+                allowFullScreen
+                style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  width: '100%',
+                  height: '100%',
+                  border: '1px solid rgba(63,95,172,0.35)',
+                  boxShadow: '0px 0px 18px rgba(26, 19, 72, 0.15)',
+                  borderRadius: '10px',
+                  boxSizing: 'border-box'
+                }}
+              />
+            </div>
+          </div>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16">
             <Link href="/dashboard">
