@@ -5,7 +5,7 @@ import { Player } from "@remotion/player";
 import RemotionVideo from '../../dashboard/_components/RemotionVideo';
 import { db } from '@/configs/db';
 import { VideoData } from '@/configs/schema';
-import { eq } from 'drizzle-orm';
+import { eq, and } from 'drizzle-orm';
 
 function SharedVideo() {
   const params = useParams();
@@ -16,12 +16,17 @@ function SharedVideo() {
   useEffect(() => {
     async function fetchVideo() {
       try {
-        const result = await db.select()
+        const result = await db
+          .select()
           .from(VideoData)
-          .where(eq(VideoData.id, params.id))
-          .where(eq(VideoData.isPublic, true));
+          .where(
+            and(
+              eq(VideoData.id, Number(params.id)),
+              eq(VideoData.isPublic, true)
+            )
+          );
 
-        if (result[0]) {
+        if (result && result[0]) {
           setVideoData(result[0]);
         } else {
           setError('Video not found or is private');

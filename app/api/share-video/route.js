@@ -8,7 +8,7 @@ export async function POST(req) {
     const { videoId, isPublic } = await req.json();
     
     // Generate shareable URL if making public
-    const shareableUrl = isPublic ? `${process.env.NEXT_PUBLIC_BASE_URL}/shared/${videoId}` : null;
+    const shareableUrl = isPublic ? `${process.env.NEXT_PUBLIC_BASE_URL || "https://cliply-ai.netlify.app"}/shared/${videoId}` : null;
 
     const result = await db.update(VideoData)
       .set({ 
